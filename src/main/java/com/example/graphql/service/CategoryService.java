@@ -4,7 +4,6 @@ import com.example.graphql.domain.Category;
 import com.example.graphql.dto.CategoryDTO;
 import com.example.graphql.dto.input.CategoryInput;
 import com.example.graphql.dto.input.PageInput;
-import com.example.graphql.mapper.CategoryMapper;
 import com.example.graphql.repository.CategoryRepository;
 import graphql.GraphQLException;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final CategoryMapper categoryMapper;
 
     @Transactional(readOnly = true)
     public Page<CategoryDTO> findAll(PageInput pageInput) {
@@ -29,13 +27,13 @@ public class CategoryService {
                 pageInput.getSortBy()
         );
         PageRequest pageable = PageRequest.of(pageInput.getPage(), pageInput.getSize(), sort);
-        return categoryRepository.findAll(pageable).map(categoryMapper::toDto);
+        return categoryRepository.findAll(pageable).map(CategoryDTO::from);
     }
 
     @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
         return categoryRepository.findById(id)
-                .map(categoryMapper::toDto)
+                .map(CategoryDTO::from)
                 .orElseThrow(() -> new GraphQLException("Category not found with id: " + id));
     }
 
@@ -45,7 +43,7 @@ public class CategoryService {
                 .name(input.getName())
                 .description(input.getDescription())
                 .build();
-        return categoryMapper.toDto(categoryRepository.save(category));
+        return CategoryDTO.from(categoryRepository.save(category));
     }
 
     @Transactional
@@ -54,7 +52,7 @@ public class CategoryService {
                 .orElseThrow(() -> new GraphQLException("Category not found with id: " + id));
         category.setName(input.getName());
         category.setDescription(input.getDescription());
-        return categoryMapper.toDto(categoryRepository.save(category));
+        return CategoryDTO.from(categoryRepository.save(category));
     }
 
     @Transactional

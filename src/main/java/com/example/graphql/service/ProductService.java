@@ -6,7 +6,6 @@ import com.example.graphql.dto.ProductDTO;
 import com.example.graphql.dto.input.PageInput;
 import com.example.graphql.dto.input.ProductFilterInput;
 import com.example.graphql.dto.input.ProductInput;
-import com.example.graphql.mapper.ProductMapper;
 import com.example.graphql.repository.CategoryRepository;
 import com.example.graphql.repository.ProductRepository;
 import graphql.GraphQLException;
@@ -23,7 +22,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final ProductMapper productMapper;
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(ProductFilterInput filter, PageInput pageInput) {
@@ -34,21 +32,20 @@ public class ProductService {
         );
         PageRequest pageable = PageRequest.of(pageInput.getPage(), pageInput.getSize(), sort);
         var predicate = ProductRepository.buildPredicate(filter);
-        return productRepository.findAll(predicate, pageable)
-                .map(productMapper::toDto);
+        return productRepository.findAll(predicate, pageable).map(ProductDTO::from);
     }
 
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
         return productRepository.findById(id)
-                .map(productMapper::toDto)
+                .map(ProductDTO::from)
                 .orElseThrow(() -> new GraphQLException("Product not found with id: " + id));
     }
 
     @Transactional
     public ProductDTO create(ProductInput input) {
         Product product = mapInputToProduct(input, new Product());
-        return productMapper.toDto(productRepository.save(product));
+        return ProductDTO.from(productRepository.save(product));
     }
 
     @Transactional
@@ -56,7 +53,7 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new GraphQLException("Product not found with id: " + id));
         mapInputToProduct(input, product);
-        return productMapper.toDto(productRepository.save(product));
+        return ProductDTO.from(productRepository.save(product));
     }
 
     @Transactional

@@ -5,7 +5,6 @@ import com.example.graphql.dto.CategoryDTO;
 import com.example.graphql.dto.ProductDTO;
 import com.example.graphql.dto.input.CategoryInput;
 import com.example.graphql.dto.input.PageInput;
-import com.example.graphql.mapper.ProductMapper;
 import com.example.graphql.repository.ProductRepository;
 import com.example.graphql.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class CategoryResolver {
 
     private final CategoryService categoryService;
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
 
     @QueryMapping
     public PageResult<CategoryDTO> categories(@Argument PageInput page) {
@@ -55,7 +53,7 @@ public class CategoryResolver {
     public List<ProductDTO> products(CategoryDTO category) {
         return productRepository.findByCategoryId(category.getId())
                 .stream()
-                .map(productMapper::toDto)
+                .map(ProductDTO::from)
                 .toList();
     }
 }

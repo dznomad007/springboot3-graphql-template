@@ -1,18 +1,15 @@
 package com.example.graphql.resolver;
 
 import com.example.graphql.common.PageResult;
-import com.example.graphql.dto.CategoryDTO;
 import com.example.graphql.dto.ProductDTO;
 import com.example.graphql.dto.input.PageInput;
 import com.example.graphql.dto.input.ProductFilterInput;
 import com.example.graphql.dto.input.ProductInput;
-import com.example.graphql.service.CategoryService;
 import com.example.graphql.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Controller;
 public class ProductResolver {
 
     private final ProductService productService;
-    private final CategoryService categoryService;
 
     @QueryMapping
     public PageResult<ProductDTO> products(
@@ -49,10 +45,4 @@ public class ProductResolver {
         return productService.delete(id);
     }
 
-    // Lazy-loaded category field for Product type
-    @SchemaMapping(typeName = "Product", field = "category")
-    public CategoryDTO category(ProductDTO product) {
-        if (product.getCategory() == null) return null;
-        return product.getCategory();
-    }
 }

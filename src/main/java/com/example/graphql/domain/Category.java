@@ -3,7 +3,6 @@ package com.example.graphql.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,6 +21,5 @@ public class Category extends BaseEntity {
     private String description;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Product> products = new ArrayList<>();
+    private List<Product> products;
 }

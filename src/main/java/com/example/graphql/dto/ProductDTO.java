@@ -1,5 +1,6 @@
 package com.example.graphql.dto;
 
+import com.example.graphql.domain.Product;
 import com.example.graphql.domain.enums.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,19 @@ public class ProductDTO {
     private CategoryDTO category;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
+
+    public static ProductDTO from(Product product) {
+        return ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .status(product.getStatus())
+                .releaseDate(product.getReleaseDate())
+                .category(product.getCategory() != null ? CategoryDTO.from(product.getCategory()) : null)
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
+                .build();
+    }
 }

@@ -1,0 +1,98 @@
+scalar DateTime
+scalar Date
+scalar BigDecimal
+scalar Long
+
+enum ProductStatus {
+    ACTIVE
+    INACTIVE
+    OUT_OF_STOCK
+    DISCONTINUED
+}
+
+type Category {
+    id: ID!
+    name: String!
+    description: String
+    createdAt: DateTime!
+    updatedAt: DateTime
+    products: [Product!]!
+}
+
+type Product {
+    id: ID!
+    name: String!
+    description: String
+    price: BigDecimal!
+    stock: Int!
+    status: ProductStatus!
+    releaseDate: Date
+    category: Category
+    createdAt: DateTime!
+    updatedAt: DateTime
+}
+
+type ProductPage {
+    content: [Product!]!
+    totalElements: Long!
+    totalPages: Int!
+    size: Int!
+    number: Int!
+}
+
+type CategoryPage {
+    content: [Category!]!
+    totalElements: Long!
+    totalPages: Int!
+    size: Int!
+    number: Int!
+}
+
+input ProductInput {
+    name: String!
+    description: String
+    price: BigDecimal!
+    stock: Int!
+    status: ProductStatus!
+    releaseDate: Date
+    categoryId: ID
+}
+
+input ProductFilterInput {
+    name: String
+    description: String
+    minPrice: BigDecimal
+    maxPrice: BigDecimal
+    status: [ProductStatus!]
+    categoryId: ID
+    releaseDateFrom: Date
+    releaseDateTo: Date
+}
+
+input CategoryInput {
+    name: String!
+    description: String
+}
+
+input PageInput {
+    page: Int = 0
+    size: Int = 10
+    sortBy: String = "id"
+    sortDirection: String = "ASC"
+}
+
+type Query {
+    products(filter: ProductFilterInput, page: PageInput): ProductPage!
+    product(id: ID!): Product
+    categories(page: PageInput): CategoryPage!
+    category(id: ID!): Category
+}
+
+type Mutation {
+    createProduct(input: ProductInput!): Product!
+    updateProduct(id: ID!, input: ProductInput!): Product!
+    deleteProduct(id: ID!): Boolean!
+    createCategory(input: CategoryInput!): Category!
+    updateCategory(id: ID!, input: CategoryInput!): Category!
+    deleteCategory(id: ID!): Boolean!
+}
