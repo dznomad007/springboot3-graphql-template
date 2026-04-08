@@ -9,12 +9,15 @@ import com.example.graphql.repository.ProductRepository;
 import com.example.graphql.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -48,12 +51,29 @@ public class CategoryResolver {
         return categoryService.delete(id);
     }
 
-    // Lazy-loaded products field for Category type
-    @SchemaMapping(typeName = "Category", field = "products")
-    public List<ProductDTO> products(CategoryDTO category) {
-        return productRepository.findByCategoryId(category.getId())
+    /**
+     * @BatchMapping: 현재 요청에서 조회된 모든 CategoryDTO를 한 번에 받아
+     * IN 쿼리 1번으로 처리 → N+1 문제 해결
+     *
+     * categories { products { ... } } 쿼리 시
+     * - @SchemaMapping : category 수 만큼 쿼리 N번 발생
+     * - @BatchMapping  : 쿼리 1번 (WHERE category_id IN (1,2,3,4))
+     */
+    @BatchMapping(typeName = "Category", field = "products")
+    public Map<CategoryDTO, List<ProductDTO>> products(List<CategoryDTO> categories) {
+        Set<Long> ids = categories.stream()
+                .map(CategoryDTO::getId)
+                .collect(Collectors.toSet());
+
+        Map<Long, List<ProductDTO>> byCategory = productRepository.findByCategoryIdIn(ids)
                 .stream()
                 .map(ProductDTO::from)
-                .toList();
+                .collect(Collectors.groupingBy(dto -> dto.getCategory().getId()));
+
+        return categories.stream()
+                .collect(Collectors.toMap(
+                        c -> c,
+                        c -> byCategory.getOrDefault(c.getId(), List.of())
+                ));
     }
 }
