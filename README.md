@@ -1,35 +1,35 @@
 # Spring Boot 3 + GraphQL Template
 
-Spring Boot 3와 GraphQL을 활용한 백엔드 템플릿 프로젝트입니다.
-QueryDSL 기반 동적 쿼리, `@BatchMapping`을 통한 N+1 문제 해결, 페이지네이션 등 실무에서 자주 사용하는 패턴을 포함합니다.
+A backend template project using Spring Boot 3 and GraphQL.
+Includes commonly used patterns in production: QueryDSL-based dynamic queries, N+1 problem resolution via `@BatchMapping`, and pagination.
 
-## 기술 스택
+## Tech Stack
 
-| 분류 | 기술 |
-|------|------|
+| Category | Technology |
+|----------|------------|
 | Language | Java 17 |
 | Framework | Spring Boot 3.2.3 |
 | API | Spring GraphQL |
 | ORM | Spring Data JPA + QueryDSL 5.1.0 |
-| Database | H2 (인메모리, MySQL 호환 모드) |
+| Database | H2 (in-memory, MySQL compatibility mode) |
 | Build | Gradle |
 | Utility | Lombok |
 
-## 주요 기능
+## Key Features
 
-- **GraphQL API** - Query / Mutation 구현 (상품, 카테고리 CRUD)
-- **동적 쿼리** - QueryDSL + `PredicateBuilder` Fluent API
-- **N+1 문제 해결** - `@BatchMapping`으로 IN 쿼리 1회 처리
-- **페이지네이션** - `PageInput` / `PageResult` 기반 일관된 페이지 응답
-- **확장 Scalar** - `BigDecimal`, `Date`, `DateTime`, `Long`
-- **입력 검증** - Jakarta Validation (`@NotBlank`, `@NotNull` 등)
+- **GraphQL API** - Query / Mutation implementation (Product, Category CRUD)
+- **Dynamic Queries** - QueryDSL + `PredicateBuilder` Fluent API
+- **N+1 Problem Resolution** - `@BatchMapping` executes a single IN query
+- **Pagination** - Consistent page response based on `PageInput` / `PageResult`
+- **Extended Scalars** - `BigDecimal`, `Date`, `DateTime`, `Long`
+- **Input Validation** - Jakarta Validation (`@NotBlank`, `@NotNull`, etc.)
 
-## 프로젝트 구조
+## Project Structure
 
 ```
 src/main/java/com/example/graphql/
 ├── domain/
-│   ├── BaseEntity.java          # 공통 필드 (id, createdAt, updatedAt)
+│   ├── BaseEntity.java          # Common fields (id, createdAt, updatedAt)
 │   ├── Category.java
 │   ├── Product.java
 │   └── enums/
@@ -44,39 +44,39 @@ src/main/java/com/example/graphql/
 │       └── PageInput.java
 ├── repository/
 │   ├── CategoryRepository.java
-│   └── ProductRepository.java   # QueryDSL Predicate 빌드
+│   └── ProductRepository.java   # QueryDSL Predicate builder
 ├── service/
 │   ├── CategoryService.java
 │   └── ProductService.java
 ├── resolver/
-│   ├── CategoryResolver.java    # @BatchMapping 적용
+│   ├── CategoryResolver.java    # @BatchMapping applied
 │   └── ProductResolver.java
 ├── common/
-│   ├── PredicateBuilder.java    # QueryDSL Fluent 빌더
+│   ├── PredicateBuilder.java    # QueryDSL Fluent builder
 │   └── PageResult.java
 └── config/
-    └── GraphqlConfig.java       # Extended Scalar 등록
+    └── GraphqlConfig.java       # Extended Scalar registration
 ```
 
-## 실행 방법
+## Getting Started
 
 ```bash
 ./gradlew bootRun
 ```
 
-서버 시작 후 GraphiQL 접속:
+After the server starts, access GraphiQL:
 
 ```
 http://localhost:8080/graphiql
 ```
 
-GraphQL 엔드포인트:
+GraphQL endpoint:
 
 ```
 POST http://localhost:8080/graphql
 ```
 
-## GraphQL 스키마 요약
+## GraphQL Schema Overview
 
 ### Query
 
@@ -99,13 +99,13 @@ updateCategory(id: ID!, input: CategoryInput!): Category
 deleteCategory(id: ID!): Boolean
 ```
 
-### 필터 예시
+### Filter Example
 
 ```graphql
 query {
   products(
     filter: {
-      name: "맥북"
+      name: "MacBook"
       minPrice: 1000000
       maxPrice: 5000000
       status: [ACTIVE]
@@ -126,7 +126,7 @@ query {
 }
 ```
 
-### N+1 해결 예시 (@BatchMapping)
+### N+1 Resolution Example (@BatchMapping)
 
 ```graphql
 query {
@@ -134,7 +134,7 @@ query {
     content {
       id
       name
-      products {        # @BatchMapping: IN 쿼리 1회로 처리
+      products {        # @BatchMapping: handled with a single IN query
         id
         name
         price
@@ -144,20 +144,20 @@ query {
 }
 ```
 
-## HTTP 테스트 파일
+## HTTP Test Files
 
-`http/` 디렉터리에 IntelliJ HTTP Client용 테스트 파일이 포함되어 있습니다.
+The `http/` directory contains test files for IntelliJ HTTP Client.
 
 ```
 http/
-├── category.http          # 카테고리 CRUD 테스트
-├── product.http           # 상품 CRUD + 필터링 테스트
-└── http-client.env.json   # 환경변수 (baseUrl)
+├── category.http          # Category CRUD tests
+├── product.http           # Product CRUD + filter tests
+└── http-client.env.json   # Environment variables (baseUrl)
 ```
 
-## 초기 데이터
+## Initial Data
 
-애플리케이션 시작 시 `data.sql`로 샘플 데이터가 자동 로드됩니다.
+Sample data is automatically loaded via `data.sql` on application startup.
 
-- 카테고리 4개: 전자제품, 의류, 도서, 스포츠
-- 상품 14개: 삼성 갤럭시, MacBook Pro, 나이키 등
+- 4 categories: 전자제품, 의류, 도서, 스포츠
+- 14 products: 삼성 갤럭시, MacBook Pro, 나이키, etc.
